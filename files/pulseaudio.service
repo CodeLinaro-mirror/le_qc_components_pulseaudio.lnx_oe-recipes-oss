@@ -3,7 +3,7 @@
 [Unit]
 Description=PulseAudio Sound Service
 #Requires=volatile-var-lib-pulse.service
-After=volatile-var-lib-pulse.service
+After=volatile-var-lib-pulse.service adbd.service
 
 [Service]
 # Note that notify will only work if --daemonize=no
