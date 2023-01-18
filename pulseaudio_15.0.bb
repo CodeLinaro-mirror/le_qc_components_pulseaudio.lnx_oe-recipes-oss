@@ -14,6 +14,8 @@ SRC_URI = "file://external/pulseaudio/ \
            file://daemon_conf_in.patch \
            "
 
+SRC_URI:append:kalama = " file://ar-pulseaudio.service"
+
 S = "${WORKDIR}/external/pulseaudio"
 
 do_compile:prepend() {
@@ -39,6 +41,10 @@ do_install:append() {
         fi
 	if [ ${BASEMACHINE} == "neo" ] ; then
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+	fi
+	if [ ${BASEMACHINE} == "kalama" ] ; then
+		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
 	fi
 	if [ ${BASEMACHINE} == "qrbx210" ] ; then
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
@@ -104,6 +110,12 @@ DEPENDS:append:qrbx210 = " qsthw qsthw-api"
 EXTRA_OEMESON:append:qrbx210 = " -Dwith-qsthw=${STAGING_INCDIR}/mm-audio/qsthw_api"
 RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-qsthw"
 RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-dbus-protocol"
+
+# Build the qal module on kalama
+DEPENDS:append:kalama = " qal"
+EXTRA_OEMESON:append:kalama = " -Dwith-qal=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-dbus-protocol"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
