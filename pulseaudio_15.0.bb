@@ -1,13 +1,14 @@
-require pulseaudio_13.0.inc
+require pulseaudio.inc
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/pulseaudio:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/pulseaudio:"
 FILESPATH =+ "${WORKSPACE}/:"
 
 SRC_URI = "file://external/pulseaudio/ \
            file://0001-client-conf-Add-allow-autospawn-for-root.patch \
            file://0002-do-not-display-CLFAGS-to-improve-reproducibility-bui.patch \
-           file://0001-remap-arm-Adjust-inline-asm-constraints.patch \
+           file://0001-meson-Check-for-__get_cpuid.patch \
            file://volatiles.04_pulse \
+           file://0001-doxygen-meson.build-remove-dependency-on-doxygen-bin.patch \
            file://pulseaudio.service \
            file://system-${BASEMACHINE}.pa \
            file://daemon_conf_in.patch \
@@ -15,19 +16,13 @@ SRC_URI = "file://external/pulseaudio/ \
 
 S = "${WORKDIR}/external/pulseaudio"
 
-do_compile_prepend() {
+do_compile:prepend() {
 	mkdir -p ${S}/libltdl
 	cp ${STAGING_LIBDIR}/libltdl* ${S}/libltdl
 }
 
-do_configure_prepend() {
-	cd ${S}
-	NOCONFIGURE=1 ./bootstrap.sh
-	cd ${B}
-	export GIT_DESCRIBE_FOR_BUILD="${PV}"
-}
 
-do_install_append() {
+do_install:append() {
 	install -d ${D}${systemd_system_unitdir}
 	install -m 0644 ${WORKDIR}/pulseaudio.service ${D}${systemd_system_unitdir}
 	install -d ${D}${systemd_system_unitdir}/multi-user.target.wants/
@@ -70,44 +65,46 @@ PACKAGES =+ "libpulsecore-dev"
 FILES_libpulsecore-dev = "${includedir}/pulsecore/*"
 
 # Explicitly create this directory for the volatile bind mount to work
-FILES_${PN}-server += "/var/lib/pulse"
+FILES:${PN}-server += "/var/lib/pulse"
+
+EXTRA_OEMESON:append = " -Dpa_version=15.0"
 
 # Build the qahw module on qrb5165
-DEPENDS_append_qrb5165 = " qahw audiohal"
-EXTRA_OECONF_append_qrb5165 += " --with-qahw-api=${STAGING_INCDIR}/mm-audio/qahw_api/inc"
-EXTRA_OECONF_append_qrb5165 += " --with-qahw=${STAGING_INCDIR}/mm-audio/qahw/inc"
-RDEPENDS_pulseaudio-server_append_qrb5165 += " pulseaudio-module-qahw-card"
+DEPENDS:append:qrb5165 = " qahw audiohal"
+EXTRA_OEMESON:append:qrb5165 = " -Dwith-qahw-api=${STAGING_INCDIR}/mm-audio/qahw_api/inc"
+EXTRA_OEMESON:append:qrb5165 = " -Dwith-qahw=${STAGING_INCDIR}/mm-audio/qahw/inc"
+RDEPENDS:pulseaudio-server:append:qrb5165 = " pulseaudio-module-qahw-card"
 
 # Build the qahw module on qrbx210
-DEPENDS_append_qrbx210 = " qahw audiohal"
-EXTRA_OECONF_append_qrbx210 += " --with-qahw-api=${STAGING_INCDIR}/mm-audio/qahw_api/inc"
-EXTRA_OECONF_append_qrbx210 += " --with-qahw=${STAGING_INCDIR}/mm-audio/qahw/inc"
-RDEPENDS_pulseaudio-server_append_qrbx210 += " pulseaudio-module-qahw-card"
+DEPENDS:append:qrbx210 = " qahw audiohal"
+EXTRA_OEMESON:append:qrbx210 = " -Dwith-qahw-api=${STAGING_INCDIR}/mm-audio/qahw_api/inc"
+EXTRA_OEMESON:append:qrbx210 = " -Dwith-qahw=${STAGING_INCDIR}/mm-audio/qahw/inc"
+RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-qahw-card"
 
 # Build the qsthw module on qrb5165
-DEPENDS_append_qrb5165 = " qsthw qsthw-api"
-EXTRA_OECONF_append_qrb5165 += " --with-qsthw=${STAGING_INCDIR}/mm-audio/qsthw_api"
-RDEPENDS_pulseaudio-server_append_qrb5165 += " pulseaudio-module-qsthw"
-RDEPENDS_pulseaudio-server_append_qrb5165 += " pulseaudio-module-dbus-protocol"
+DEPENDS:append:qrb5165 = " qsthw qsthw-api"
+EXTRA_OEMESON:append:qrb5165 = " -Dwith-qsthw=${STAGING_INCDIR}/mm-audio/qsthw_api"
+RDEPENDS:pulseaudio-server:append:qrb5165 = " pulseaudio-module-qsthw"
+RDEPENDS:pulseaudio-server:append:qrb5165 = " pulseaudio-module-dbus-protocol"
 
 # Build the pal module on sxr2130
-DEPENDS_append_sxr2130 = " qal"
-EXTRA_OECONF_append_sxr2130 += " --with-qal=${STAGING_INCDIR}/pal"
-RDEPENDS_pulseaudio-server_append_sxr2130 += " pulseaudio-module-qal-card"
-RDEPENDS_pulseaudio-server_append_sxr2130 += " pulseaudio-module-dbus-protocol"
+DEPENDS:append:sxr2130 = " qal"
+EXTRA_OEMESON:append:sxr2130 = " -Dwith-qal=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:sxr2130 = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:sxr2130 = " pulseaudio-module-dbus-protocol"
 
 # Build the qal module on neo
-DEPENDS_append_neo = " qal"
-EXTRA_OECONF_append_neo += " --with-qal=${STAGING_INCDIR}/pal"
-RDEPENDS_pulseaudio-server_append_neo += " pulseaudio-module-qal-card pulseaudio-module-qal-voiceui-card"
-RDEPENDS_pulseaudio-server_append_neo += " pulseaudio-module-dbus-protocol"
+DEPENDS:append:neo = " qal"
+EXTRA_OEMESON:append:neo = " -Dwith-qal=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:neo = " pulseaudio-module-qal-card pulseaudio-module-qal-voiceui-card"
+RDEPENDS:pulseaudio-server:append:neo = " pulseaudio-module-dbus-protocol"
 
 # Build the qsthw module on qrbx210
-DEPENDS_append_qrbx210 = " qsthw qsthw-api"
-EXTRA_OECONF_append_qrbx210 += " --with-qsthw=${STAGING_INCDIR}/mm-audio/qsthw_api"
-RDEPENDS_pulseaudio-server_append_qrbx210 += " pulseaudio-module-qsthw"
-RDEPENDS_pulseaudio-server_append_qrbx210 += " pulseaudio-module-dbus-protocol"
+DEPENDS:append:qrbx210 = " qsthw qsthw-api"
+EXTRA_OEMESON:append:qrbx210 = " -Dwith-qsthw=${STAGING_INCDIR}/mm-audio/qsthw_api"
+RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-qsthw"
+RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-dbus-protocol"
 
-FILES_${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
-FILES_${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
-FILES_${PN} = "${datadir}/* ${libdir}/* ${sysconfdir}/* ${bindir}/* ${base_libdir}/* ${prefix}/libexec/"
+FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
+FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
+FILES:${PN} = "${datadir}/* ${libdir}/* ${sysconfdir}/* ${bindir}/* ${base_libdir}/* ${prefix}/libexec/"
