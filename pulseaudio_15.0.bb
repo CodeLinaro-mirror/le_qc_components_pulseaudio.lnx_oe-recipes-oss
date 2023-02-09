@@ -35,10 +35,9 @@ do_install:append() {
 	if [ ${BASEMACHINE} == "qrb5165" ] ; then
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
 	fi
-
-        if [ ${BASEMACHINE} == "sxr2130" ] ; then
+	if [ ${BASEMACHINE} == "sxr2130" ] ; then
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-        fi
+	fi
 	if [ ${BASEMACHINE} == "neo" ] ; then
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
 	fi
@@ -60,8 +59,8 @@ do_install:append() {
 	install -m 0644 ${WORKDIR}/build/config.h ${D}${includedir}/pulsecore
 }
 
-GROUPADD_PARAM_pulseaudio-server = "-g 5020 pulse"
-USERADD_PARAM_pulseaudio-server = "--system --home /var/run/pulse \
+GROUPADD_PARAM:pulseaudio-server = "-g 5020 pulse"
+USERADD_PARAM:pulseaudio-server = "--system --home /var/run/pulse \
                               --no-create-home --shell /bin/false \
                               --groups audio,pulse,input,plugdev,diag --gid pulse pulse"
 
