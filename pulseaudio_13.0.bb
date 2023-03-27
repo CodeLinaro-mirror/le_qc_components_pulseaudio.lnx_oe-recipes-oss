@@ -9,8 +9,8 @@ SRC_URI = "file://external/pulseaudio/ \
            file://0001-remap-arm-Adjust-inline-asm-constraints.patch \
            file://volatiles.04_pulse \
            file://pulseaudio.service \
-           file://system-${BASEMACHINE}.pa \
            file://daemon_conf_in.patch \
+           file://${BASEMACHINE}/ \
            "
 
 S = "${WORKDIR}/external/pulseaudio"
@@ -29,29 +29,19 @@ do_configure_prepend() {
 
 do_install_append() {
 	install -d ${D}${systemd_system_unitdir}
-	install -m 0644 ${WORKDIR}/pulseaudio.service ${D}${systemd_system_unitdir}
 	install -d ${D}${systemd_system_unitdir}/multi-user.target.wants/
+
+	if [ ${BASEMACHINE} == "neo" ] ; then
+		install -m 0644 ${WORKDIR}/${BASEMACHINE}/pulseaudio.service ${D}${systemd_system_unitdir}
+	else
+		install -m 0644 ${WORKDIR}/pulseaudio.service ${D}${systemd_system_unitdir}
+	fi
+
 	# enable the service for multi-user.target
 	ln -sf ${systemd_system_unitdir}/pulseaudio.service \
-	       ${D}${systemd_system_unitdir}/multi-user.target.wants/pulseaudio.service
+		   ${D}${systemd_system_unitdir}/multi-user.target.wants/pulseaudio.service
 
-	if [ ${BASEMACHINE} == "qrb5165" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
-
-        if [ ${BASEMACHINE} == "sxr2130" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-        fi
-	if [ ${BASEMACHINE} == "neo" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
-	if [ ${BASEMACHINE} == "qrbx210" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
-
-	if [ ${BASEMACHINE} == "qcs6490" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
+	install -m 0644 ${WORKDIR}/${BASEMACHINE}/system.pa ${D}${sysconfdir}/pulse/system.pa
 
 	for i in $(find ${S}/src/pulsecore/ -type d -printf "pulsecore/%P\n"); do
 		[ -n "$(ls ${S}/src/${i}/*.h 2>/dev/null)" ] || continue
