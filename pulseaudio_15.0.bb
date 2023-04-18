@@ -116,6 +116,9 @@ EXTRA_OEMESON:append:kalama = " -Dwith-qal=${STAGING_INCDIR}/pal"
 RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-dbus-protocol"
 
+EXTRA_OEMESON:append:kalama = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-qal-voiceui-card"
+
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
 FILES:${PN} = "${datadir}/* ${libdir}/* ${sysconfdir}/* ${bindir}/* ${base_libdir}/* ${prefix}/libexec/"
