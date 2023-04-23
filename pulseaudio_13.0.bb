@@ -9,8 +9,8 @@ SRC_URI = "file://external/pulseaudio/ \
            file://0001-remap-arm-Adjust-inline-asm-constraints.patch \
            file://volatiles.04_pulse \
            file://pulseaudio.service \
-           file://system-${BASEMACHINE}.pa \
            file://daemon_conf_in.patch \
+           file://${BASEMACHINE}/ \
            "
 
 S = "${WORKDIR}/external/pulseaudio"
@@ -29,25 +29,19 @@ do_configure_prepend() {
 
 do_install_append() {
 	install -d ${D}${systemd_system_unitdir}
-	install -m 0644 ${WORKDIR}/pulseaudio.service ${D}${systemd_system_unitdir}
 	install -d ${D}${systemd_system_unitdir}/multi-user.target.wants/
+
+	if [ ${BASEMACHINE} == "neo" ] ; then
+		install -m 0644 ${WORKDIR}/${BASEMACHINE}/pulseaudio.service ${D}${systemd_system_unitdir}
+	else
+		install -m 0644 ${WORKDIR}/pulseaudio.service ${D}${systemd_system_unitdir}
+	fi
+
 	# enable the service for multi-user.target
 	ln -sf ${systemd_system_unitdir}/pulseaudio.service \
-	       ${D}${systemd_system_unitdir}/multi-user.target.wants/pulseaudio.service
+		   ${D}${systemd_system_unitdir}/multi-user.target.wants/pulseaudio.service
 
-	if [ ${BASEMACHINE} == "qrb5165" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
-
-        if [ ${BASEMACHINE} == "sxr2130" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-        fi
-	if [ ${BASEMACHINE} == "neo" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
-	if [ ${BASEMACHINE} == "qrbx210" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
+	install -m 0644 ${WORKDIR}/${BASEMACHINE}/system.pa ${D}${sysconfdir}/pulse/system.pa
 
 	for i in $(find ${S}/src/pulsecore/ -type d -printf "pulsecore/%P\n"); do
 		[ -n "$(ls ${S}/src/${i}/*.h 2>/dev/null)" ] || continue
@@ -91,15 +85,15 @@ RDEPENDS_pulseaudio-server_append_qrb5165 += " pulseaudio-module-qsthw"
 RDEPENDS_pulseaudio-server_append_qrb5165 += " pulseaudio-module-dbus-protocol"
 
 # Build the pal module on sxr2130
-DEPENDS_append_sxr2130 = " qal"
-EXTRA_OECONF_append_sxr2130 += " --with-qal=${STAGING_INCDIR}/pal"
-RDEPENDS_pulseaudio-server_append_sxr2130 += " pulseaudio-module-qal-card"
+DEPENDS_append_sxr2130 = " pal"
+EXTRA_OECONF_append_sxr2130 += " --with-pal=${STAGING_INCDIR}/pal"
+RDEPENDS_pulseaudio-server_append_sxr2130 += " pulseaudio-module-pal-card"
 RDEPENDS_pulseaudio-server_append_sxr2130 += " pulseaudio-module-dbus-protocol"
 
-# Build the qal module on neo
-DEPENDS_append_neo = " qal"
-EXTRA_OECONF_append_neo += " --with-qal=${STAGING_INCDIR}/pal"
-RDEPENDS_pulseaudio-server_append_neo += " pulseaudio-module-qal-card pulseaudio-module-qal-voiceui-card"
+# Build the pal module on neo
+DEPENDS_append_neo = " pal"
+EXTRA_OECONF_append_neo += " --with-pal=${STAGING_INCDIR}/pal"
+RDEPENDS_pulseaudio-server_append_neo += " pulseaudio-module-pal-card pulseaudio-module-pal-voiceui-card"
 RDEPENDS_pulseaudio-server_append_neo += " pulseaudio-module-dbus-protocol"
 
 # Build the qsthw module on qrbx210
@@ -108,6 +102,18 @@ EXTRA_OECONF_append_qrbx210 += " --with-qsthw=${STAGING_INCDIR}/mm-audio/qsthw_a
 RDEPENDS_pulseaudio-server_append_qrbx210 += " pulseaudio-module-qsthw"
 RDEPENDS_pulseaudio-server_append_qrbx210 += " pulseaudio-module-dbus-protocol"
 
+# Build the qahw module on qcs6490
+DEPENDS_append_qcs6490 = " qahw audiohal"
+EXTRA_OECONF_append_qcs6490 += " --with-qahw-api=${STAGING_INCDIR}/mm-audio/qahw_api/inc"
+EXTRA_OECONF_append_qcs6490 += " --with-qahw=${STAGING_INCDIR}/mm-audio/qahw/inc"
+RDEPENDS_pulseaudio-server_append_qcs6490 += " pulseaudio-module-qahw-card"
+
+# Build the qsthw module on qcs6490
+DEPENDS_append_qcs6490 = " qsthw qsthw-api"
+EXTRA_OECONF_append_qcs6490 += " --with-qsthw=${STAGING_INCDIR}/mm-audio/qsthw_api"
+RDEPENDS_pulseaudio-server_append_qcs6490 += " pulseaudio-module-qsthw"
+RDEPENDS_pulseaudio-server_append_qcs6490 += " pulseaudio-module-dbus-protocol"
+
 FILES_${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
-FILES_${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
+FILES_${PN}-module-pal-card += "${datadir}/pulseaudio/pal"
 FILES_${PN} = "${datadir}/* ${libdir}/* ${sysconfdir}/* ${bindir}/* ${base_libdir}/* ${prefix}/libexec/"
