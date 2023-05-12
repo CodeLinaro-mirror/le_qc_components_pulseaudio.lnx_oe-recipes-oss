@@ -62,7 +62,7 @@ do_install:append() {
 GROUPADD_PARAM:pulseaudio-server = "-g 5020 pulse"
 USERADD_PARAM:pulseaudio-server = "--system --home /var/run/pulse \
                               --no-create-home --shell /bin/false \
-                              --groups audio,pulse,input,plugdev,diag --gid pulse pulse"
+                              --groups audio,pulse,input,plugdev,diag,system --gid pulse pulse"
 
 SYSTEMD_PACKAGES = "${PN}-server"
 
