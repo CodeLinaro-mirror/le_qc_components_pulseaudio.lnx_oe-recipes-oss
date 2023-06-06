@@ -1,5 +1,5 @@
 SUMMARY = "QTI PulseAudio opensource package groups"
-LICENSE = "BSD-3-Clause"
+LICENSE = "BSD-3-Clause-Clear"
 
 inherit packagegroup
 
