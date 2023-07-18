@@ -19,8 +19,6 @@
 # mode.
 
 load-module module-dbus-protocol
-load-module module-qal-card
-load-module module-qal-voiceui-card
 #load-module module-remap-sink sink_name=offload0_remap remix=no master=offload0 channels=2 master_channel_map=front-left,front-right channel_map=front-left,front-right
 
 ### Load several protocols
@@ -67,3 +65,6 @@ load-module module-role-ignore ignore_roles=tone active_roles=cue,alarm global=t
 
 ### Automatically load driver modules depending on the hardware available
 load-module module-udev-detect
+
+load-module module-qal-card
+load-module module-qal-voiceui-card
