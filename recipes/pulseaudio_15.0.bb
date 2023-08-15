@@ -116,6 +116,7 @@ EXTRA_OEMESON:append:kalama = " -Dwith-qal=${STAGING_INCDIR}/pal"
 RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-dbus-protocol"
 
+# Build the qal voiceui card on kalama
 EXTRA_OEMESON:append:kalama = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
 RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-qal-voiceui-card"
 

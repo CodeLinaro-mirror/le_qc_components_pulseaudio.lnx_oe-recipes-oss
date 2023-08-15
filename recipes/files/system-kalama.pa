@@ -18,18 +18,7 @@
 # This startup script is used only if PulseAudio is started in system
 # mode.
 
-# Disable autodetection and use qahw support
-#### Automatically load driver modules depending on the hardware available
-#.ifexists module-udev-detect.so
-#load-module module-udev-detect
-#.else
-#### Use the static hardware detection module (for systems that lack udev/hal support)
-#load-module module-detect
-#.endif
-
 load-module module-dbus-protocol
-load-module module-qal-card
-load-module module-qal-voiceui-card
 #load-module module-remap-sink sink_name=offload0_remap remix=no master=offload0 channels=2 master_channel_map=front-left,front-right channel_map=front-left,front-right
 
 ### Load several protocols
@@ -73,3 +62,9 @@ load-module module-role-cork trigger_roles=call cork_roles=music global=true
 
 ### Load module role ignore
 load-module module-role-ignore ignore_roles=tone active_roles=cue,alarm global=true
+
+### Automatically load driver modules depending on the hardware available
+load-module module-udev-detect
+
+load-module module-qal-card
+load-module module-qal-voiceui-card
