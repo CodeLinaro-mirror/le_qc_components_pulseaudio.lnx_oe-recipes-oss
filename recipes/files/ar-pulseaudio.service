@@ -2,7 +2,7 @@
 
 [Unit]
 Description=PulseAudio Sound Service
-After=adbd.service pdmapper.service
+After=adbd.service pdmapper.service servicemanager.service
 
 [Service]
 # Note that notify will only work if --daemonize=no
