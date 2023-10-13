@@ -111,8 +111,9 @@ RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-qsthw"
 RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-dbus-protocol"
 
 # Build the qal module on kalama
-DEPENDS:append:kalama = " qal"
+DEPENDS:append:kalama = " qal palserver"
 EXTRA_OEMESON:append:kalama = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:kalama = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-dbus-protocol"
 
