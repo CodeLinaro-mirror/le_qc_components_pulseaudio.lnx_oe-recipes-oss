@@ -15,6 +15,7 @@ SRC_URI = "file://external/pulseaudio/ \
            "
 
 SRC_URI:append:kalama = " file://ar-pulseaudio.service"
+SRC_URI:append:pineapple = " file://ar-pulseaudio.service"
 
 S = "${WORKDIR}/external/pulseaudio"
 
@@ -22,7 +23,6 @@ do_compile:prepend() {
 	mkdir -p ${S}/libltdl
 	cp ${STAGING_LIBDIR}/libltdl* ${S}/libltdl
 }
-
 
 do_install:append() {
 	install -d ${D}${systemd_system_unitdir}
@@ -45,6 +45,10 @@ do_install:append() {
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
 		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
 	fi
+	if [ ${BASEMACHINE} == "pineapple" ] ; then
+		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
+	fi
 	if [ ${BASEMACHINE} == "qrbx210" ] ; then
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
 	fi
@@ -60,7 +64,7 @@ do_install:append() {
 }
 
 GROUPADD_PARAM:pulseaudio-server = "-g 5020 pulse"
-USERADD_PARAM:pulseaudio-server = "--system --home /var/run/pulse \
+USERADD_PARAM:pulseaudio-server = "-u 1000 -U system; --system --home /var/run/pulse \
                               --no-create-home --shell /bin/false \
                               --groups audio,pulse,input,plugdev,diag,system --gid pulse pulse"
 
@@ -120,6 +124,13 @@ RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-dbus-protocol"
 # Build the qal voiceui card on kalama
 EXTRA_OEMESON:append:kalama = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
 RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-qal-voiceui-card"
+
+# Build the qal module on pineapple
+DEPENDS:append:pineapple = " qal"
+EXTRA_OEMESON:append:pineapple = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:pineapple = " -Denable-pal-service=no"
+RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-dbus-protocol"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
