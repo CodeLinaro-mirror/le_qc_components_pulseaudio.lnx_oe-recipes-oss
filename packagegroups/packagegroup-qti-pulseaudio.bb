@@ -6,7 +6,7 @@ inherit packagegroup
 PROVIDES = "${PACKAGES}"
 
 PACKAGES = ' \
-    ${@bb.utils.contains("DISTRO_FEATURES", "pulseaudio", bb.utils.contains("COMBINED_FEATURES", "qti-audio", "packagegroup-qti-pulseaudio", "", d), "", d)} \
+    ${@bb.utils.contains("DISTRO_FEATURES", "pulseaudio", bb.utils.contains("DISTRO_FEATURES", "qti-audio", "packagegroup-qti-pulseaudio", "", d), "", d)} \
 '
 
 RDEPENDS:packagegroup-qti-pulseaudio = ' \
