@@ -12,10 +12,12 @@ SRC_URI = "file://external/pulseaudio/ \
            file://pulseaudio.service \
            file://system-${BASEMACHINE}.pa \
            file://daemon_conf_in.patch \
+           file://99-pasthru_adsp.rules \
            "
 
 SRC_URI:append:kalama = " file://ar-pulseaudio.service"
 SRC_URI:append:pineapple = " file://ar-pulseaudio.service"
+SRC_URI:append:qcm2290-mtp = " file://ar-pulseaudio.service"
 
 S = "${WORKDIR}/external/pulseaudio"
 
@@ -52,6 +54,12 @@ do_install:append() {
 	if [ ${BASEMACHINE} == "qrbx210" ] ; then
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
 	fi
+	if [ ${BASEMACHINE} == "qcm2290-mtp" ] ; then
+		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
+ 		install -d ${D}${libdir}/udev/rules.d
+    		install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
+	fi
 
 	for i in $(find ${S}/src/pulsecore/ -type d -printf "pulsecore/%P\n"); do
 		[ -n "$(ls ${S}/src/${i}/*.h 2>/dev/null)" ] || continue
@@ -75,6 +83,8 @@ FILES_libpulsecore-dev = "${includedir}/pulsecore/*"
 
 # Explicitly create this directory for the volatile bind mount to work
 FILES:${PN}-server += "/var/lib/pulse"
+
+FILES:${PN} += "${libdir}/udev/rules.d/99-pasthru_adsp.rules"
 
 EXTRA_OEMESON:append = " -Dpa_version=15.0"
 
@@ -131,6 +141,14 @@ EXTRA_OEMESON:append:pineapple = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:pineapple = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-dbus-protocol"
+
+# Build the qal module on qcm2290-mtp
+DEPENDS:append:qcm2290-mtp = " qal palserver"
+EXTRA_OEMESON:append:qcm2290-mtp = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:qcm2290-mtp = " -Denable-pal-service=yes"
+EXTRA_OEMESON:append:qcm2290-mtp = " -Dpal-support-card-status=false"
+RDEPENDS:pulseaudio-server:append:qcm2290-mtp = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:qcm2290-mtp = " pulseaudio-module-dbus-protocol"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
