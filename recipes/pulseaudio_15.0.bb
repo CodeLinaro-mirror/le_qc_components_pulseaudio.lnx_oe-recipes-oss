@@ -14,7 +14,7 @@ SRC_URI = "file://external/pulseaudio/ \
            file://99-pasthru_adsp.rules \
            "
 SRC_URI:append = " ${@bb.utils.contains('BASEMACHINE', 'qcm4325-mtp', 'file://system-qcm2290-mtp.pa', 'file://system-${BASEMACHINE}.pa', d)}"
-PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp"
+PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp qcs610-odk-64"
 SRC_URI:append = " ${@bb.utils.contains_any('MACHINE', d.getVar('PULSEAUDIO_SERVICE_MACHINES'), 'file://ar-pulseaudio.service', '', d)}"
 
 S = "${WORKDIR}/external/pulseaudio"
@@ -64,6 +64,10 @@ do_install:append() {
 		install -d ${D}${libdir}/udev/rules.d
 		install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
 	fi
+        if [ ${BASEMACHINE} == "sdmsteppe" ] ; then
+                install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+                install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
+        fi
 
 	for i in $(find ${S}/src/pulsecore/ -type d -printf "pulsecore/%P\n"); do
 		[ -n "$(ls ${S}/src/${i}/*.h 2>/dev/null)" ] || continue
@@ -170,6 +174,15 @@ EXTRA_OEMESON:append:qcm4325-mtp = " -Denable-pal-service=yes"
 EXTRA_OEMESON:append:qcm4325-mtp = " -Dpal-support-card-status=false"
 RDEPENDS:pulseaudio-server:append:qcm4325-mtp = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:qcm4325-mtp = " pulseaudio-module-dbus-protocol"
+
+# Build the qal module on sdmsteppe
+DEPENDS:append:sdmsteppe = " qal palserver"
+EXTRA_OEMESON:append:sdmsteppe = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:sdmsteppe = " -Denable-pal-service=yes"
+EXTRA_OEMESON:append:sdmsteppe = " -Dwith-refactored-pal=true"
+RDEPENDS:pulseaudio-server:append:sdmsteppe = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:sdmsteppe = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:sdmsteppe = "-g 5020 pulse"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
