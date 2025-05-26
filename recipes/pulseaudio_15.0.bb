@@ -147,9 +147,9 @@ RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-dbus-protocol"
 
 # Build the qal module on sun
-DEPENDS:append:sun = " qal"
+DEPENDS:append:sun = " qal palserver"
 EXTRA_OEMESON:append:sun = " -Dwith-qal=${STAGING_INCDIR}/pal"
-EXTRA_OEMESON:append:sun = " -Denable-pal-service=no"
+EXTRA_OEMESON:append:sun = " -Denable-pal-service=yes"
 EXTRA_OEMESON:append:sun = " -Dwith-refactored-pal=true"
 RDEPENDS:pulseaudio-server:append:sun = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:sun = " pulseaudio-module-dbus-protocol"
