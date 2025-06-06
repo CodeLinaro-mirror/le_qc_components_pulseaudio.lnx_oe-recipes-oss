@@ -14,10 +14,8 @@ SRC_URI = "file://external/pulseaudio/ \
            file://99-pasthru_adsp.rules \
            "
 SRC_URI:append = " ${@bb.utils.contains('BASEMACHINE', 'qcm4325-mtp', 'file://system-qcm2290-mtp.pa', 'file://system-${BASEMACHINE}.pa', d)}"
-SRC_URI:append:kalama = " file://ar-pulseaudio.service"
-SRC_URI:append:pineapple = " file://ar-pulseaudio.service"
-SRC_URI:append:qcm2290-mtp = " file://ar-pulseaudio.service"
-SRC_URI:append:qcm4325-mtp = " file://ar-pulseaudio.service"
+PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp"
+SRC_URI:append = " ${@bb.utils.contains_any('MACHINE', d.getVar('PULSEAUDIO_SERVICE_MACHINES'), 'file://ar-pulseaudio.service', '', d)}"
 
 S = "${WORKDIR}/external/pulseaudio"
 
@@ -47,7 +45,7 @@ do_install:append() {
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
 		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
 	fi
-	if [ ${BASEMACHINE} == "pineapple" ] ; then
+	if [ ${BASEMACHINE} == "pineapple" ] || [ ${BASEMACHINE} == "sun" ]; then
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
 		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
 	fi
@@ -57,15 +55,15 @@ do_install:append() {
 	if [ ${BASEMACHINE} == "qcm2290-mtp" ] ; then
 		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
 		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
- 		install -d ${D}${libdir}/udev/rules.d
-    		install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
+		install -d ${D}${libdir}/udev/rules.d
+		install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
 	fi
-        if [ ${BASEMACHINE} == "qcm4325-mtp" ] ; then
-                install -m 0644 ${WORKDIR}/system-qcm2290-mtp.pa ${D}${sysconfdir}/pulse/system.pa
-                install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
-                install -d ${D}${libdir}/udev/rules.d
-                install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
-        fi
+	if [ ${BASEMACHINE} == "qcm4325-mtp" ] ; then
+		install -m 0644 ${WORKDIR}/system-qcm2290-mtp.pa ${D}${sysconfdir}/pulse/system.pa
+		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
+		install -d ${D}${libdir}/udev/rules.d
+		install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
+	fi
 
 	for i in $(find ${S}/src/pulsecore/ -type d -printf "pulsecore/%P\n"); do
 		[ -n "$(ls ${S}/src/${i}/*.h 2>/dev/null)" ] || continue
@@ -147,6 +145,15 @@ EXTRA_OEMESON:append:pineapple = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:pineapple = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-dbus-protocol"
+
+# Build the qal module on sun
+DEPENDS:append:sun = " qal"
+EXTRA_OEMESON:append:sun = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:sun = " -Denable-pal-service=no"
+EXTRA_OEMESON:append:sun = " -Dwith-refactored-pal=true"
+RDEPENDS:pulseaudio-server:append:sun = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:sun = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:sun = "-g 5020 pulse"
 
 # Build the qal module on qcm2290-mtp
 DEPENDS:append:qcm2290-mtp = " qal palserver"
