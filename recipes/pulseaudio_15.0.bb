@@ -167,13 +167,13 @@ RDEPENDS:pulseaudio-server:append:qcm4325-mtp = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:qcm4325-mtp = " pulseaudio-module-dbus-protocol"
 
 # Build the qal module on kera
-DEPENDS:append:kera = " qal"
+DEPENDS:append:kera = " qal palserver"
 EXTRA_OEMESON:append:kera = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:kera = " -Dwith-refactored-pal=true"
-EXTRA_OEMESON:append:kera = " -Denable-pal-service=no"
+EXTRA_OEMESON:append:kera = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-dbus-protocol"
-GROUPADD_PARAM:pulseaudio-server:remove:sun = "-g 5020 pulse"
+GROUPADD_PARAM:pulseaudio-server:remove:kera = "-g 5020 pulse"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
