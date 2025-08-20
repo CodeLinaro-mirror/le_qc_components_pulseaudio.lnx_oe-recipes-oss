@@ -14,67 +14,66 @@ SRC_URI = "file://external/pulseaudio/ \
            file://99-pasthru_adsp.rules \
            "
 SRC_URI:append = " ${@bb.utils.contains('BASEMACHINE', 'qcm4325-mtp', 'file://system-qcm2290-mtp.pa', 'file://system-${BASEMACHINE}.pa', d)}"
-SRC_URI:append:kalama = " file://ar-pulseaudio.service"
-SRC_URI:append:pineapple = " file://ar-pulseaudio.service"
-SRC_URI:append:qcm2290-mtp = " file://ar-pulseaudio.service"
-SRC_URI:append:qcm4325-mtp = " file://ar-pulseaudio.service"
+AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe"
+SRC_URI:append = " ${@bb.utils.contains_any('BASEMACHINE', d.getVar('AR_PULSEAUDIO_SERVICE_MACHINES'), 'file://ar-pulseaudio.service', '', d)}"
 
 S = "${WORKDIR}/external/pulseaudio"
 
 do_compile:prepend() {
-	mkdir -p ${S}/libltdl
-	cp ${STAGING_LIBDIR}/libltdl* ${S}/libltdl
+    mkdir -p ${S}/libltdl
+    cp ${STAGING_LIBDIR}/libltdl* ${S}/libltdl
 }
 
 do_install:append() {
-	install -d ${D}${systemd_system_unitdir}
-	install -m 0644 ${WORKDIR}/pulseaudio.service ${D}${systemd_system_unitdir}
-	install -d ${D}${systemd_system_unitdir}/multi-user.target.wants/
-	# enable the service for multi-user.target
-	ln -sf ${systemd_system_unitdir}/pulseaudio.service \
-	       ${D}${systemd_system_unitdir}/multi-user.target.wants/pulseaudio.service
+    install -d ${D}${systemd_system_unitdir}
+    install -m 0644 ${WORKDIR}/pulseaudio.service ${D}${systemd_system_unitdir}
+    install -d ${D}${systemd_system_unitdir}/multi-user.target.wants/
+    # enable the service for multi-user.target
+    ln -sf ${systemd_system_unitdir}/pulseaudio.service \
+        ${D}${systemd_system_unitdir}/multi-user.target.wants/pulseaudio.service
 
-	if [ ${BASEMACHINE} == "qrb5165" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
-	if [ ${BASEMACHINE} == "sxr2130" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
-	if [ ${BASEMACHINE} == "neo" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
-	if [ ${BASEMACHINE} == "kalama" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
-	fi
-	if [ ${BASEMACHINE} == "pineapple" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
-	fi
-	if [ ${BASEMACHINE} == "qrbx210" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-	fi
-	if [ ${BASEMACHINE} == "qcm2290-mtp" ] ; then
-		install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-		install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
- 		install -d ${D}${libdir}/udev/rules.d
-    		install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
-	fi
-        if [ ${BASEMACHINE} == "qcm4325-mtp" ] ; then
-                install -m 0644 ${WORKDIR}/system-qcm2290-mtp.pa ${D}${sysconfdir}/pulse/system.pa
+    case "${BASEMACHINE}" in
+        "qrb5165"|"sxr2130"|"neo"|"qrbx210")
+            install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+            ;;
+    esac
+    case "${BASEMACHINE}" in
+        "kalama"|"pineapple"|"sun"|"kera")
+            install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+            install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
+            ;;
+    esac
+    case "${BASEMACHINE}" in
+        "qcm2290-mtp")
+            install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+            install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
+            install -d ${D}${libdir}/udev/rules.d
+            install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
+            ;;
+    esac
+    case "${BASEMACHINE}" in
+        "qcm4325-mtp")
+            install -m 0644 ${WORKDIR}/system-qcm2290-mtp.pa ${D}${sysconfdir}/pulse/system.pa
+            install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
+            install -d ${D}${libdir}/udev/rules.d
+            install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
+            ;;
+    esac
+    case "${BASEMACHINE}" in
+        "sdmsteppe")
+                install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
                 install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
-                install -d ${D}${libdir}/udev/rules.d
-                install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
-        fi
+            ;;
+    esac
 
-	for i in $(find ${S}/src/pulsecore/ -type d -printf "pulsecore/%P\n"); do
-		[ -n "$(ls ${S}/src/${i}/*.h 2>/dev/null)" ] || continue
-		install -d ${D}${includedir}/${i}
-		install -m 0644 ${S}/src/${i}/*.h ${D}${includedir}/${i}/
-	done
-	# not really the expected path for config.h but we can't just
-	# put it ${includedir}, it's too generic a name.
-	install -m 0644 ${WORKDIR}/build/config.h ${D}${includedir}/pulsecore
+    for i in $(find ${S}/src/pulsecore/ -type d -printf "pulsecore/%P\n"); do
+        [ -n "$(ls ${S}/src/${i}/*.h 2>/dev/null)" ] || continue
+        install -d ${D}${includedir}/${i}
+        install -m 0644 ${S}/src/${i}/*.h ${D}${includedir}/${i}/
+    done
+    # not really the expected path for config.h but we can't just
+    # put it ${includedir}, it's too generic a name.
+    install -m 0644 ${WORKDIR}/build/config.h ${D}${includedir}/pulsecore
 }
 
 GROUPADD_PARAM:pulseaudio-server = "-g 5020 pulse"
@@ -148,6 +147,15 @@ EXTRA_OEMESON:append:pineapple = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-dbus-protocol"
 
+# Build the qal module on sun
+DEPENDS:append:sun = " qal palserver"
+EXTRA_OEMESON:append:sun = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:sun = " -Denable-pal-service=yes"
+EXTRA_OEMESON:append:sun = " -Dwith-refactored-pal=true"
+RDEPENDS:pulseaudio-server:append:sun = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:sun = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:sun = "-g 5020 pulse"
+
 # Build the qal module on qcm2290-mtp
 DEPENDS:append:qcm2290-mtp = " qal palserver"
 EXTRA_OEMESON:append:qcm2290-mtp = " -Dwith-qal=${STAGING_INCDIR}/pal"
@@ -163,6 +171,24 @@ EXTRA_OEMESON:append:qcm4325-mtp = " -Denable-pal-service=yes"
 EXTRA_OEMESON:append:qcm4325-mtp = " -Dpal-support-card-status=false"
 RDEPENDS:pulseaudio-server:append:qcm4325-mtp = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:qcm4325-mtp = " pulseaudio-module-dbus-protocol"
+
+# Build the qal module on kera
+DEPENDS:append:kera = " qal palserver"
+EXTRA_OEMESON:append:kera = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:kera = " -Dwith-refactored-pal=true"
+EXTRA_OEMESON:append:kera = " -Denable-pal-service=yes"
+RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:kera = "-g 5020 pulse"
+
+# Build the qal module on sdmsteppe
+DEPENDS:append:sdmsteppe = " qal palserver"
+EXTRA_OEMESON:append:sdmsteppe = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:sdmsteppe = " -Denable-pal-service=yes"
+EXTRA_OEMESON:append:sdmsteppe = " -Dwith-refactored-pal=true"
+RDEPENDS:pulseaudio-server:append:sdmsteppe = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:sdmsteppe = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:sdmsteppe = "-g 5020 pulse"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
