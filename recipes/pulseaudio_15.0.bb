@@ -14,7 +14,7 @@ SRC_URI = "file://external/pulseaudio/ \
            file://99-pasthru_adsp.rules \
            "
 SRC_URI:append = " ${@bb.utils.contains('BASEMACHINE', 'qcm4325-mtp', 'file://system-qcm2290-mtp.pa', 'file://system-${BASEMACHINE}.pa', d)}"
-AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe alor"
+AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe alor vienna"
 SRC_URI:append = " ${@bb.utils.contains_any('BASEMACHINE', d.getVar('AR_PULSEAUDIO_SERVICE_MACHINES'), 'file://ar-pulseaudio.service', '', d)}"
 
 S = "${WORKDIR}/external/pulseaudio"
@@ -38,7 +38,7 @@ do_install:append() {
             ;;
     esac
     case "${BASEMACHINE}" in
-        "kalama"|"pineapple"|"sun"|"kera"|"alor")
+        "kalama"|"pineapple"|"sun"|"kera"|"alor"|"vienna")
             install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
             install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
             ;;
@@ -213,6 +213,15 @@ EXTRA_OEMESON:append:alor = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:alor = "-g 5020 pulse"
+
+# Build the qal module on vienna
+DEPENDS:append:vienna = " qal palserver"
+EXTRA_OEMESON:append:vienna = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:vienna = " -Denable-pal-service=yes"
+EXTRA_OEMESON:append:vienna = " -Dwith-refactored-pal=true"
+RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:vienna = "-g 5020 pulse"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
