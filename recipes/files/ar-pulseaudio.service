@@ -8,6 +8,7 @@ Requires=agm_server.service
 [Service]
 # Note that notify will only work if --daemonize=no
 Type=notify
+ExecStartPre=sleep 10
 ExecStart=/usr/bin/pulseaudio --system --daemonize=no -vvvv
 Restart=on-failure
 StateDirectory=pulse
