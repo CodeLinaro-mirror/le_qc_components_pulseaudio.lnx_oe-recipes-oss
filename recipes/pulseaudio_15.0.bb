@@ -148,6 +148,10 @@ EXTRA_OEMESON:append:pineapple = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-dbus-protocol"
 
+# Build the qal voiceui card on pineapple
+EXTRA_OEMESON:append:pineapple = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:pineapple = " pulseaudio-module-qal-voiceui-card"
+
 # Build the qal module on sun
 DEPENDS:append:sun = " qal palserver"
 EXTRA_OEMESON:append:sun = " -Dwith-qal=${STAGING_INCDIR}/pal"
