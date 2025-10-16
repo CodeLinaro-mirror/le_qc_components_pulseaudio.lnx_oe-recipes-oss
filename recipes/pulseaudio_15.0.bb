@@ -61,9 +61,10 @@ do_install:append() {
     esac
     case "${BASEMACHINE}" in
         "sdmsteppe")
-                install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
-                install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
-                sed -i '/^\[Service\]/i# Prevent starting if node is not available\nConditionPathExists=/sys/kernel/boot_adsp/boot\n' ${D}${systemd_system_unitdir}/pulseaudio.service
+            install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+            install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
+            echo "Modifying: ${D}${systemd_system_unitdir}/pulseaudio.service"
+            sed -i 's|exit 0;|sleep 5; exit 0;|' ${D}${systemd_system_unitdir}/pulseaudio.service
             ;;
     esac
 
