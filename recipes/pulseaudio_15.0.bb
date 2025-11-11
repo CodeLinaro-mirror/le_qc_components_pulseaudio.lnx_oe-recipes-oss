@@ -14,7 +14,7 @@ SRC_URI = "file://external/pulseaudio/ \
            file://99-pasthru_adsp.rules \
            "
 SRC_URI:append = " ${@bb.utils.contains('BASEMACHINE', 'qcm4325-mtp', 'file://system-qcm2290-mtp.pa', 'file://system-${BASEMACHINE}.pa', d)}"
-AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe"
+AR_PULSEAUDIO_SERVICE_MACHINES = "kalama canoe pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe"
 SRC_URI:append = " ${@bb.utils.contains_any('BASEMACHINE', d.getVar('AR_PULSEAUDIO_SERVICE_MACHINES'), 'file://ar-pulseaudio.service', '', d)}"
 
 S = "${WORKDIR}/external/pulseaudio"
@@ -38,7 +38,7 @@ do_install:append() {
             ;;
     esac
     case "${BASEMACHINE}" in
-        "kalama"|"pineapple"|"sun"|"kera")
+        "kalama"|"canoe"|"pineapple"|"sun"|"kera")
             install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
             install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
             ;;
@@ -139,6 +139,15 @@ RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-dbus-protocol"
 # Build the qal voiceui card on kalama
 EXTRA_OEMESON:append:kalama = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
 RDEPENDS:pulseaudio-server:append:kalama = " pulseaudio-module-qal-voiceui-card"
+
+# Build the qal module on canoe
+DEPENDS:append:canoe = " qal palserver"
+EXTRA_OEMESON:append:canoe = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:canoe = " -Denable-pal-service=yes"
+EXTRA_OEMESON:append:canoe = " -Dwith-refactored-pal=true"
+RDEPENDS:pulseaudio-server:append:canoe = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:canoe = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:canoe = "-g 5020 pulse"
 
 # Build the qal module on pineapple
 DEPENDS:append:pineapple = " qal palserver"
