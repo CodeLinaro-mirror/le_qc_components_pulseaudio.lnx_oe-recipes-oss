@@ -14,7 +14,7 @@ SRC_URI = "file://external/pulseaudio/ \
            file://99-pasthru_adsp.rules \
            "
 SRC_URI:append = " ${@bb.utils.contains('BASEMACHINE', 'qcm4325-mtp', 'file://system-qcm2290-mtp.pa', 'file://system-${BASEMACHINE}.pa', d)}"
-AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera"
+AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe"
 SRC_URI:append = " ${@bb.utils.contains_any('BASEMACHINE', d.getVar('AR_PULSEAUDIO_SERVICE_MACHINES'), 'file://ar-pulseaudio.service', '', d)}"
 
 S = "${WORKDIR}/external/pulseaudio"
@@ -57,6 +57,13 @@ do_install:append() {
             install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
             install -d ${D}${libdir}/udev/rules.d
             install -m 0644 ${WORKDIR}/99-pasthru_adsp.rules ${D}${libdir}/udev/rules.d/99-pasthru_adsp.rules
+            ;;
+    esac
+    case "${BASEMACHINE}" in
+        "sdmsteppe")
+                install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
+                install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
+                sed -i '/^\[Service\]/i# Prevent starting if node is not available\nConditionPathExists=/sys/kernel/boot_adsp/boot\n' ${D}${systemd_system_unitdir}/pulseaudio.service
             ;;
     esac
 
@@ -174,6 +181,15 @@ EXTRA_OEMESON:append:kera = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:kera = "-g 5020 pulse"
+
+# Build the qal module on sdmsteppe
+DEPENDS:append:sdmsteppe = " qal palserver"
+EXTRA_OEMESON:append:sdmsteppe = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:sdmsteppe = " -Denable-pal-service=yes"
+EXTRA_OEMESON:append:sdmsteppe = " -Dwith-refactored-pal=true"
+RDEPENDS:pulseaudio-server:append:sdmsteppe = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:sdmsteppe = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:sdmsteppe = "-g 5020 pulse"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"

@@ -18,19 +18,7 @@
 # This startup script is used only if PulseAudio is started in system
 # mode.
 
-# Disable autodetection and use qahw support
-#### Automatically load driver modules depending on the hardware available
-#.ifexists module-udev-detect.so
-#load-module module-udev-detect
-#.else
-#### Use the static hardware detection module (for systems that lack udev/hal support)
-#load-module module-detect
-#.endif
-
 load-module module-dbus-protocol
-load-module module-qsthw
-load-module module-qahw-card
-
 #load-module module-remap-sink sink_name=offload0_remap remix=no master=offload0 channels=2 master_channel_map=front-left,front-right channel_map=front-left,front-right
 
 ### Load several protocols
@@ -51,15 +39,11 @@ load-module module-default-device-restore
 
 load-module module-switch-on-port-available
 
-### Automatically move streams to the default sink if the sink they are
-### connected to dies, similar for sources
-load-module module-rescue-streams
-
 ### Make sure we always have a sink around, even if it is a null sink.
 load-module module-always-sink
 
 ### Automatically suspend sinks/sources that become idle for too long
-load-module module-suspend-on-idle timeout_ms=200
+load-module module-suspend-on-idle timeout=1
 
 ### Enable positioned event sounds
 load-module module-position-event-sounds
@@ -71,13 +55,13 @@ load-module module-position-event-sounds
 #load-module module-bluetooth-policy loopback_latency=1800
 
 ### Load module role exclusise for media.role=music
-load-module module-role-exclusive exclusive_roles=music global=true
-
-### Load module role ducking
-#load-module module-role-ducking trigger_roles=cue,tone,alarm/alarm/cue/alarm ducking_roles=music/cue/tone/cue,tone,alarm global=true
+#load-module module-role-exclusive exclusive_roles=music global=true
 
 ### Load module role cork
-load-module module-role-cork trigger_roles=call cork_roles=music global=true
+#load-module module-role-cork trigger_roles=call cork_roles=music global=true
 
 ### Load module role ignore
-load-module module-role-ignore ignore_roles=tone active_roles=cue,alarm global=true
+#load-module module-role-ignore ignore_roles=tone active_roles=cue,alarm global=true
+
+load-module module-qal-card
+#load-module module-qal-voiceui-card
