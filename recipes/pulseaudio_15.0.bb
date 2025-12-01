@@ -201,10 +201,10 @@ RDEPENDS:pulseaudio-server:append:sdmsteppe = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:sdmsteppe = "-g 5020 pulse"
 
 # Build the qal module on alor
-DEPENDS:append:alor = " qal"
+DEPENDS:append:alor = " qal palserver"
 EXTRA_OEMESON:append:alor = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:alor = " -Dwith-refactored-pal=true"
-EXTRA_OEMESON:append:alor = " -Denable-pal-service=no"
+EXTRA_OEMESON:append:alor = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:alor = "-g 5020 pulse"
