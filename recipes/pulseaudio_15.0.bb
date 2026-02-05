@@ -158,6 +158,7 @@ DEPENDS:append:sun = " qal palserver"
 EXTRA_OEMESON:append:sun = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:sun = " -Denable-pal-service=yes"
 EXTRA_OEMESON:append:sun = " -Dwith-refactored-pal=true"
+EXTRA_OEMESON:append:sun = " -Dwith-qal-sourcetrack=true"
 RDEPENDS:pulseaudio-server:append:sun = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:sun = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:sun = "-g 5020 pulse"
@@ -165,6 +166,10 @@ GROUPADD_PARAM:pulseaudio-server:remove:sun = "-g 5020 pulse"
 # Build the qal voiceui card on sun
 EXTRA_OEMESON:append:sun = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
 RDEPENDS:pulseaudio-server:append:sun = " pulseaudio-module-qal-voiceui-card"
+
+# Build the qal voiceui card on kera
+EXTRA_OEMESON:append:kera = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-qal-voiceui-card"
 
 # Build the qal module on qcm2290-mtp
 DEPENDS:append:qcm2290-mtp = " qal palserver"
