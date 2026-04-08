@@ -225,6 +225,10 @@ RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:vienna = "-g 5020 pulse"
 
+# Build the qal voiceui card on vienna
+EXTRA_OEMESON:append:vienna = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-qal-voiceui-card"
+
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
 FILES:${PN} = "${datadir}/* ${libdir}/* ${sysconfdir}/* ${bindir}/* ${base_libdir}/* ${prefix}/libexec/"

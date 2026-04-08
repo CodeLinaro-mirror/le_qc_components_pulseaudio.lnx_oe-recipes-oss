@@ -64,4 +64,4 @@ load-module module-position-event-sounds
 #load-module module-role-ignore ignore_roles=tone active_roles=cue,alarm global=true
 
 load-module module-qal-card
-#load-module module-qal-voiceui-card
+load-module module-qal-voiceui-card
