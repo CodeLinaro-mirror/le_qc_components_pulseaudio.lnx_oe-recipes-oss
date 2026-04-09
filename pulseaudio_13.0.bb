@@ -33,6 +33,8 @@ do_install:append() {
 
 	if [ ${BASEMACHINE} == "neo" ] ; then
 		install -m 0644 ${WORKDIR}/${BASEMACHINE}/pulseaudio.service ${D}${systemd_system_unitdir}
+	elif [ ${BASEMACHINE} == "seraph" ] ; then
+		install -m 0644 ${WORKDIR}/${BASEMACHINE}/pulseaudio.service ${D}${systemd_system_unitdir}
 	else
 		install -m 0644 ${WORKDIR}/pulseaudio.service ${D}${systemd_system_unitdir}
 	fi
@@ -57,6 +59,7 @@ GROUPADD_PARAM:pulseaudio-server = "-g 5020 pulse"
 USERADD_PARAM:pulseaudio-server = "--system --home /var/run/pulse \
                               --no-create-home --shell /bin/false \
                               --groups audio,pulse,input,plugdev,diag --gid pulse pulse"
+
 
 SYSTEMD_PACKAGES = "${PN}-server"
 
@@ -95,6 +98,12 @@ DEPENDS:append:neo = " pal"
 EXTRA_OECONF:append:neo = " --with-pal=${STAGING_INCDIR}/pal"
 RDEPENDS:pulseaudio-server:append:neo = " pulseaudio-module-pal-card pulseaudio-module-pal-voiceui-card"
 RDEPENDS:pulseaudio-server:append:neo = " pulseaudio-module-dbus-protocol"
+
+# Build the pal module on seraph
+DEPENDS:append:seraph = " qal"
+EXTRA_OECONF:append:seraph = " --with-pal=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:seraph = " pulseaudio-module-pal-card pulseaudio-module-pal-voiceui-card"
+RDEPENDS:pulseaudio-server:append:seraph = " pulseaudio-module-dbus-protocol"
 
 # Build the qsthw module on qrbx210
 DEPENDS:append:qrbx210 = " qsthw qsthw-api"

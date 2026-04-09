@@ -61,7 +61,7 @@ DEPENDS = "libatomic-ops libsndfile1 libtool"
 DEPENDS += "udev alsa-lib glib-2.0"
 DEPENDS += "speexdsp libxml-parser-perl-native libcap"
 
-inherit autotools bash-completion pkgconfig useradd gettext perlnative systemd manpages gsettings
+inherit autotools bash-completion pkgconfig gettext perlnative systemd manpages gsettings
 
 # When compiling for Thumb or Thumb2, frame pointers _must_ be disabled since the
 # Thumb frame pointer in r7 clashes with pulseaudio's use of inline asm to make syscalls
