@@ -214,6 +214,10 @@ RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:alor = "-g 5020 pulse"
 
+# Build the qal voiceui card on alor
+EXTRA_OEMESON:append:alor = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-qal-voiceui-card"
+
 # Build the qal module on vienna
 DEPENDS:append:vienna = " qal palserver"
 EXTRA_OEMESON:append:vienna = " -Dwith-qal=${STAGING_INCDIR}/pal"
