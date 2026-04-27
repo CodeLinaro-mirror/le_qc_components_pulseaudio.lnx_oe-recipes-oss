@@ -14,7 +14,7 @@ SRC_URI = "file://external/pulseaudio/ \
            file://99-pasthru_adsp.rules \
            "
 SRC_URI:append = " ${@bb.utils.contains('BASEMACHINE', 'qcm4325-mtp', 'file://system-qcm2290-mtp.pa', 'file://system-${BASEMACHINE}.pa', d)}"
-AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe alor vienna qrbx210"
+AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe alor vienna qrbx210 pebble"
 SRC_URI:append = " ${@bb.utils.contains_any('BASEMACHINE', d.getVar('AR_PULSEAUDIO_SERVICE_MACHINES'), 'file://ar-pulseaudio.service', '', d)}"
 
 S = "${WORKDIR}/external/pulseaudio"
@@ -38,7 +38,7 @@ do_install:append() {
             ;;
     esac
     case "${BASEMACHINE}" in
-        "kalama"|"pineapple"|"sun"|"kera"|"alor"|"vienna"|"qrbx210")
+        "kalama"|"pineapple"|"sun"|"kera"|"alor"|"vienna"|"qrbx210"|"pebble")
             install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
             install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
             ;;
@@ -231,6 +231,15 @@ EXTRA_OEMESON:append:qrbx210 = " -Denable-pal-service=yes"
 RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:qrbx210 = "-g 5020 pulse"
+
+# Build the qal module on pebble
+DEPENDS:append:pebble = " pal"
+EXTRA_OEMESON:append:pebble = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:pebble = " -Denable-pal-service=no"
+EXTRA_OEMESON:append:pebble = " -Dwith-refactored-pal=true"
+RDEPENDS:pulseaudio-server:append:pebble = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:pebble = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:pebble = "-g 5020 pulse"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
