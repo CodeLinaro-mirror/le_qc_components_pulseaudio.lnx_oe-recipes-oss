@@ -192,6 +192,7 @@ DEPENDS:append:kera = " qal palserver"
 EXTRA_OEMESON:append:kera = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:kera = " -Dwith-refactored-pal=true"
 EXTRA_OEMESON:append:kera = " -Denable-pal-service=yes"
+EXTRA_OEMESON:append:kera = " -Dwith-qal-sourcetrack=true"
 RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:kera = "-g 5020 pulse"
@@ -214,14 +215,24 @@ RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:alor = "-g 5020 pulse"
 
+# Build the qal voiceui card on alor
+EXTRA_OEMESON:append:alor = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-qal-voiceui-card"
+
 # Build the qal module on vienna
 DEPENDS:append:vienna = " qal palserver"
 EXTRA_OEMESON:append:vienna = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:vienna = " -Denable-pal-service=yes"
 EXTRA_OEMESON:append:vienna = " -Dwith-refactored-pal=true"
+EXTRA_OEMESON:append:vienna = " -Denable-acd=true"
+EXTRA_OEMESON:append:vienna = " -Denable-hist-cap=true"
 RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:vienna = "-g 5020 pulse"
+
+# Build the qal voiceui card on vienna
+EXTRA_OEMESON:append:vienna = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-qal-voiceui-card"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
