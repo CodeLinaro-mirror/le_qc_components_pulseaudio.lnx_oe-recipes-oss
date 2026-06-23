@@ -102,6 +102,7 @@ RDEPENDS:pulseaudio-server:append:neo = " pulseaudio-module-dbus-protocol"
 # Build the pal module on seraph
 DEPENDS:append:seraph = " qal"
 EXTRA_OECONF:append:seraph = " --with-pal=${STAGING_INCDIR}/pal"
+EXTRA_OECONF:append:seraph = " --enable-a2dp-loopback-type"
 RDEPENDS:pulseaudio-server:append:seraph = " pulseaudio-module-pal-card pulseaudio-module-pal-voiceui-card"
 RDEPENDS:pulseaudio-server:append:seraph = " pulseaudio-module-dbus-protocol"
 
