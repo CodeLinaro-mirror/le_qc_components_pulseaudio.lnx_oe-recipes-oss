@@ -65,6 +65,7 @@ do_install:append() {
             install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
             echo "Modifying: ${D}${systemd_system_unitdir}/pulseaudio.service"
             sed -i 's|exit 0;|sleep 5; exit 0;|' ${D}${systemd_system_unitdir}/pulseaudio.service
+            sed -i '/^StateDirectory=pulse/a CPUAffinity=0 1' ${D}${systemd_system_unitdir}/pulseaudio.service
             ;;
     esac
 
