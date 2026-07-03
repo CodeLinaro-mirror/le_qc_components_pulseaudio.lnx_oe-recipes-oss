@@ -10,6 +10,7 @@ Type=notify
 ExecStart=/usr/bin/pulseaudio --system --daemonize=no -vvvv
 Restart=on-failure
 StateDirectory=pulse
+CPUAffinity=0 1
 
 [Install]
 WantedBy=multi-user.target
