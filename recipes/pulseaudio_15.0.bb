@@ -14,7 +14,7 @@ SRC_URI = "file://external/pulseaudio/ \
            file://99-pasthru_adsp.rules \
            "
 SRC_URI:append = " ${@bb.utils.contains('BASEMACHINE', 'qcm4325-mtp', 'file://system-qcm2290-mtp.pa', 'file://system-${BASEMACHINE}.pa', d)}"
-AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe alor vienna"
+AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe alor vienna qrbx210 pebble"
 SRC_URI:append = " ${@bb.utils.contains_any('BASEMACHINE', d.getVar('AR_PULSEAUDIO_SERVICE_MACHINES'), 'file://ar-pulseaudio.service', '', d)}"
 
 S = "${WORKDIR}/external/pulseaudio"
@@ -33,12 +33,12 @@ do_install:append() {
         ${D}${systemd_system_unitdir}/multi-user.target.wants/pulseaudio.service
 
     case "${BASEMACHINE}" in
-        "qrb5165"|"sxr2130"|"neo"|"qrbx210")
+        "qrb5165"|"sxr2130"|"neo")
             install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
             ;;
     esac
     case "${BASEMACHINE}" in
-        "kalama"|"pineapple"|"sun"|"kera"|"alor"|"vienna")
+        "kalama"|"pineapple"|"sun"|"kera"|"alor"|"vienna"|"qrbx210"|"pebble")
             install -m 0644 ${WORKDIR}/system-${BASEMACHINE}.pa ${D}${sysconfdir}/pulse/system.pa
             install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
             ;;
@@ -101,12 +101,6 @@ EXTRA_OEMESON:append:qrb5165 = " -Dwith-qahw-api=${STAGING_INCDIR}/mm-audio/qahw
 EXTRA_OEMESON:append:qrb5165 = " -Dwith-qahw=${STAGING_INCDIR}/mm-audio/qahw/inc"
 RDEPENDS:pulseaudio-server:append:qrb5165 = " pulseaudio-module-qahw-card"
 
-# Build the qahw module on qrbx210
-DEPENDS:append:qrbx210 = " qahw audiohal"
-EXTRA_OEMESON:append:qrbx210 = " -Dwith-qahw-api=${STAGING_INCDIR}/mm-audio/qahw_api/inc"
-EXTRA_OEMESON:append:qrbx210 = " -Dwith-qahw=${STAGING_INCDIR}/mm-audio/qahw/inc"
-RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-qahw-card"
-
 # Build the qsthw module on qrb5165
 DEPENDS:append:qrb5165 = " qsthw qsthw-api"
 EXTRA_OEMESON:append:qrb5165 = " -Dwith-qsthw=${STAGING_INCDIR}/mm-audio/qsthw_api"
@@ -124,12 +118,6 @@ DEPENDS:append:neo = " qal"
 EXTRA_OEMESON:append:neo = " -Dwith-qal=${STAGING_INCDIR}/pal"
 RDEPENDS:pulseaudio-server:append:neo = " pulseaudio-module-qal-card pulseaudio-module-qal-voiceui-card"
 RDEPENDS:pulseaudio-server:append:neo = " pulseaudio-module-dbus-protocol"
-
-# Build the qsthw module on qrbx210
-DEPENDS:append:qrbx210 = " qsthw qsthw-api"
-EXTRA_OEMESON:append:qrbx210 = " -Dwith-qsthw=${STAGING_INCDIR}/mm-audio/qsthw_api"
-RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-qsthw"
-RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-dbus-protocol"
 
 # Build the qal module on kalama
 DEPENDS:append:kalama = " qal palserver"
@@ -193,6 +181,7 @@ EXTRA_OEMESON:append:kera = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:kera = " -Dwith-refactored-pal=true"
 EXTRA_OEMESON:append:kera = " -Denable-pal-service=yes"
 EXTRA_OEMESON:append:kera = " -Dwith-qal-sourcetrack=true"
+EXTRA_OEMESON:append:kera = " -Denable-timestamp=true"
 RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:kera = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:kera = "-g 5020 pulse"
@@ -202,6 +191,7 @@ DEPENDS:append:sdmsteppe = " qal palserver"
 EXTRA_OEMESON:append:sdmsteppe = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:sdmsteppe = " -Denable-pal-service=yes"
 EXTRA_OEMESON:append:sdmsteppe = " -Dwith-refactored-pal=true"
+EXTRA_OEMESON:append:sdmsteppe = " -Denable-timestamp=true"
 RDEPENDS:pulseaudio-server:append:sdmsteppe = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:sdmsteppe = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:sdmsteppe = "-g 5020 pulse"
@@ -215,15 +205,43 @@ RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:alor = "-g 5020 pulse"
 
+# Build the qal voiceui card on alor
+EXTRA_OEMESON:append:alor = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:alor = " pulseaudio-module-qal-voiceui-card"
+
 # Build the qal module on vienna
 DEPENDS:append:vienna = " qal palserver"
 EXTRA_OEMESON:append:vienna = " -Dwith-qal=${STAGING_INCDIR}/pal"
 EXTRA_OEMESON:append:vienna = " -Denable-pal-service=yes"
 EXTRA_OEMESON:append:vienna = " -Dwith-refactored-pal=true"
 EXTRA_OEMESON:append:vienna = " -Denable-acd=true"
+EXTRA_OEMESON:append:vienna = " -Denable-hist-cap=true"
+EXTRA_OEMESON:append:vienna = " -Denable-cshm=true"
 RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:vienna = "-g 5020 pulse"
+
+# Build the qal voiceui card on vienna
+EXTRA_OEMESON:append:vienna = " -Dwith-qal-voiceui=${STAGING_INCDIR}/pal"
+RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-qal-voiceui-card"
+
+# Build the qal module on qrbx210
+DEPENDS:append:qrbx210 = " qal palserver"
+EXTRA_OEMESON:append:qrbx210 = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:qrbx210 = " -Dwith-refactored-pal=false"
+EXTRA_OEMESON:append:qrbx210 = " -Denable-pal-service=yes"
+RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:qrbx210 = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:qrbx210 = "-g 5020 pulse"
+
+# Build the qal module on pebble
+DEPENDS:append:pebble = " pal"
+EXTRA_OEMESON:append:pebble = " -Dwith-qal=${STAGING_INCDIR}/pal"
+EXTRA_OEMESON:append:pebble = " -Denable-pal-service=no"
+EXTRA_OEMESON:append:pebble = " -Dwith-refactored-pal=true"
+RDEPENDS:pulseaudio-server:append:pebble = " pulseaudio-module-qal-card"
+RDEPENDS:pulseaudio-server:append:pebble = " pulseaudio-module-dbus-protocol"
+GROUPADD_PARAM:pulseaudio-server:remove:pebble = "-g 5020 pulse"
 
 FILES:${PN}-module-qahw-card += "${datadir}/pulseaudio/qahw"
 FILES:${PN}-module-qal-card += "${datadir}/pulseaudio/qal"
