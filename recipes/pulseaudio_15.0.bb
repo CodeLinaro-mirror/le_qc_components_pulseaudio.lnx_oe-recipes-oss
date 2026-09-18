@@ -17,7 +17,7 @@ SRC_URI:append = " ${@bb.utils.contains('BASEMACHINE', 'qcm4325-mtp', 'file://sy
 AR_PULSEAUDIO_SERVICE_MACHINES = "kalama pineapple sun qcm2290-mtp qcm4325-mtp kera sdmsteppe alor vienna qrbx210 pebble"
 SRC_URI:append = " ${@bb.utils.contains_any('BASEMACHINE', d.getVar('AR_PULSEAUDIO_SERVICE_MACHINES'), 'file://ar-pulseaudio.service', '', d)}"
 
-S = "${WORKDIR}/external/pulseaudio"
+S = "${UNPACKDIR}/external/pulseaudio"
 
 do_compile:prepend() {
     mkdir -p ${S}/libltdl
