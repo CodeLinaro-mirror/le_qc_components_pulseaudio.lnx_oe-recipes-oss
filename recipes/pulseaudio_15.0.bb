@@ -65,6 +65,7 @@ do_install:append() {
             install -m 0644 ${WORKDIR}/ar-pulseaudio.service ${D}${systemd_system_unitdir}/pulseaudio.service
             echo "Modifying: ${D}${systemd_system_unitdir}/pulseaudio.service"
             sed -i 's|exit 0;|sleep 5; exit 0;|' ${D}${systemd_system_unitdir}/pulseaudio.service
+            sed -i '/^StateDirectory=pulse/a CPUAffinity=0 1' ${D}${systemd_system_unitdir}/pulseaudio.service
             ;;
     esac
 
@@ -217,6 +218,8 @@ EXTRA_OEMESON:append:vienna = " -Dwith-refactored-pal=true"
 EXTRA_OEMESON:append:vienna = " -Denable-acd=true"
 EXTRA_OEMESON:append:vienna = " -Denable-hist-cap=true"
 EXTRA_OEMESON:append:vienna = " -Denable-cshm=true"
+EXTRA_OEMESON:append:vienna = " -Denable-ssr-recovery=true"
+EXTRA_OEMESON:append:vienna = " -Denable-jack-external-set-param-async=false"
 RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-qal-card"
 RDEPENDS:pulseaudio-server:append:vienna = " pulseaudio-module-dbus-protocol"
 GROUPADD_PARAM:pulseaudio-server:remove:vienna = "-g 5020 pulse"
